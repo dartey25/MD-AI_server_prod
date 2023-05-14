@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from waitress import serve
 from models import code_search, ask_eur, summarize_doc
 
 app = Flask(__name__)
@@ -22,4 +23,5 @@ def summ():
   return jsonify(summarize_doc(doc=doc, chain=chain))
 
 if __name__ == '__main__':
-  app.run(debug=False)
+#   app.run(debug=True)
+    serve(app, host='0.0.0.0', port=5000)
