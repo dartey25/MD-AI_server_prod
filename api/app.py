@@ -22,4 +22,4 @@ def summ():
   return jsonify(summarize_doc(doc=doc, chain=chain))
 
 if __name__ == '__main__':
-  app.run(debug=True)
+  app.run(debug=False)
