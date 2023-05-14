@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from models import code_search, ask_eur, summarize_doc
 
 app = Flask(__name__)
-app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 @app.route('/search', methods=['GET'])

@@ -6,12 +6,14 @@ from langchain.chains import RetrievalQA
 from langchain.document_loaders import DirectoryLoader, TextLoader
 from langchain.chains.summarize import load_summarize_chain
 from langchain.chains.question_answering import load_qa_chain
+from dotenv import load_dotenv
 import openai
 from openai.embeddings_utils import get_embedding, cosine_similarity
 import pandas as pd
 import numpy as np
 import pinecone
 import os
+load_dotenv()
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
@@ -29,7 +31,7 @@ chains = ['map_reduce', 'stuff', 'refine', 'map_rerank']
 def code_search(query):
     search_term_vector = get_embedding(query, engine="text-embedding-ada-002")
 
-    df = pd.read_csv('../data/cdc_embeddings.csv')
+    df = pd.read_csv('api/data/cdc_embeddings.csv')
     df['embedding'] = df['embedding'].apply(eval).apply(np.array)
     df["similarities"] = df['embedding'].apply(lambda x: cosine_similarity(x, search_term_vector))
     sorted_by_similarity = df.sort_values("similarities", ascending=False).head(10)
@@ -50,7 +52,7 @@ def summarize_doc(doc, chain):
     try:
         if chain not in chains:
             raise Exception('Невірний тип chain')
-        # loader = TextLoader(f'data/summarize{int(doc)}.txt')
+        # loader = TextLoader(f'api/data/summarize{int(doc)}.txt')
         # documents = loader.load()
         # print(documents[0].page_content)
 
@@ -94,7 +96,7 @@ def summarize_doc(doc, chain):
         #     response = chain({"input_documents": texts}, return_only_outputs=True)
         #     print(response)
         #     return {"answer": response['output_text'].strip()}
-        if doc == 1:
+        if doc == '1':
             response = {'output_text': ' Цей Порядок визначає правила заповнення Митної декларації для переміщення товарів по митній території України та за межами митної території України. Державна митна служба України внесла зміни до наказів та класифікаторів, що використовуються при заповненні вантажної митної декларації, а також до Класифікатора видів податків, зборів та інших бюджетних надходжень.'}
         else:
              response = {'output_text': 'У своїй промові президент Байден звернувся до кризи в Україні, американського плану порятунку та двопартійного закону про інфраструктуру. Він обговорював необхідність інвестувати в Америку, навчати американців і будувати економіку знизу вгору. Він також оголосив про вивільнення 60 мільйонів барелів нафти із запасів по всьому світу та створення спеціальної оперативної групи для розслідування злочинів російських олігархів. На завершення він наголосив на необхідності купувати американське та використовувати долари платників податків для відновлення Америки.'}
@@ -107,7 +109,7 @@ def summarize_doc(doc, chain):
 
 
 def answer_doc(query):
-    loader = DirectoryLoader('../data/eur/', glob='*.txt')
+    loader = DirectoryLoader('api/data/eur/', glob='*.txt')
     documents = loader.load()
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     texts = text_splitter.split_documents(documents)
@@ -117,7 +119,7 @@ def answer_doc(query):
 
 def answer_doc2(query):
     persist_directory = 'eur'
-    loader = DirectoryLoader('../data/eur/', glob='*.txt')
+    loader = DirectoryLoader('api/data/eur/', glob='*.txt')
     documents = loader.load()
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     texts = text_splitter.split_documents(documents)
@@ -129,7 +131,7 @@ def answer_doc2(query):
 
 
 def upload_to_vector_store():
-    loader = DirectoryLoader('../data/eur/', glob='*.txt')
+    loader = DirectoryLoader('api/data/eur/', glob='*.txt')
     data = loader.load()
     print (f'You have {len(data)} document(s) in your data')
     print (f'There are {len(data[30].page_content)} characters in your document')
